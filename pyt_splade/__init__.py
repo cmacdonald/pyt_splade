@@ -23,7 +23,7 @@ def splade(
         model = Splade(model, agg=agg)
         model.eval()
         if gpu:
-            model.to()
+            model.to(device)
         
     else:
         if tokenizer is None:
