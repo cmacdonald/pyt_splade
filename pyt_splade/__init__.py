@@ -8,7 +8,8 @@ def splade(
         model : Union[torch.nn.Module, str] = "naver/splade-cocondenser-ensembledistil", 
         tokenizer=None,
         agg='max',
-        max_length = 256
+        max_length = 256,
+        gpu=True
     ) -> pt.Transformer:
     
     import torch
@@ -20,6 +21,8 @@ def splade(
             tokenizer = AutoTokenizer.from_pretrained(model)
         model = Splade(model, agg=agg)
         model.eval()
+        if gpu:
+            model.to(torch.device('cuda'))
         
     else:
         if tokenizer is None:
