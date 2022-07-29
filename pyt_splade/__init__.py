@@ -29,21 +29,19 @@ def splade(
 
     def _transform(df):
         rtr = []
-        #TODO batching
         with torch.no_grad():
-            for row in df.itertuples():
-                # now compute the document representation
-                doc_rep = model(d_kwargs=tokenizer(row.text, return_tensors="pt"))["d_rep"].squeeze()  # (sparse) doc rep in voc space, shape (30522,)
+            # now compute the document representation
+            doc_reps = model(d_kwargs=tokenizer(df.text.tolist(), return_tensors="pt"))["d_rep"]  # (sparse) doc rep in voc space, shape (docs, 30522,)
+            print(doc_reps.shape)
 
+            for i in range(doc_reps.shape[0]): #for each doc
                 # get the number of non-zero dimensions in the rep:
-                col = torch.nonzero(doc_rep).squeeze().cpu().tolist()
-                print("number of actual dimensions: ", len(col))
+                col = torch.nonzero(doc_reps[i]).squeeze().cpu().tolist()
 
-                # now let's inspect the bow representation:
-                weights = doc_rep[col].cpu().tolist()
+                # now let's inspect the bow representation:                
+                weights = doc_reps[i,col].cpu().tolist()
                 d = {reverse_voc[k] : v for k, v in zip(col, weights)}
-
-                rtr.append([row.docno, d])
+                rtr.append([df.iloc[i].docno, d])
         return pd.DataFrame(rtr, columns=['docno', 'toks'])
     return pt.apply.generic(_transform)
 
