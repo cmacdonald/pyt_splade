@@ -13,6 +13,7 @@ def splade(
     ) -> pt.Transformer:
     
     import torch
+    device = torch.device('cuda') if gpu else torch.device('cpu')
     from transformers import AutoModelForMaskedLM
     if isinstance(model, str):
         from splade.models.transformer_rep import Splade
@@ -22,7 +23,7 @@ def splade(
         model = Splade(model, agg=agg)
         model.eval()
         if gpu:
-            model.to(torch.device('cuda'))
+            model.to()
         
     else:
         if tokenizer is None:
@@ -42,8 +43,8 @@ def splade(
                 truncation="longest_first",  # truncates to max model length,
                 max_length=max_length,
                 return_attention_mask=True,
-                return_tensors="pt"
-                ))["d_rep"]  # (sparse) doc rep in voc space, shape (docs, 30522,)
+                return_tensors="pt",
+                ))["d_rep"].to(device)  # (sparse) doc rep in voc space, shape (docs, 30522,)
 
             for i in range(doc_reps.shape[0]): #for each doc
                 # get the number of non-zero dimensions in the rep:
