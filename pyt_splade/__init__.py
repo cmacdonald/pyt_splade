@@ -8,6 +8,7 @@ def splade(
         model : Union[torch.nn.Module, str] = "naver/splade-cocondenser-ensembledistil", 
         tokenizer=None,
         agg='max',
+        max_length = 256
     ) -> pt.Transformer:
     
     import torch
@@ -31,8 +32,15 @@ def splade(
         rtr = []
         with torch.no_grad():
             # now compute the document representation
-            doc_reps = model(d_kwargs=tokenizer(df.text.tolist(), return_tensors="pt"))["d_rep"]  # (sparse) doc rep in voc space, shape (docs, 30522,)
-            print(doc_reps.shape)
+            doc_reps = model(d_kwargs=tokenizer(
+                df.text.tolist(),
+                add_special_tokens=True,
+                padding="longest",  # pad to max sequence length in batch
+                truncation="longest_first",  # truncates to max model length,
+                max_length=max_length,
+                return_attention_mask=True,
+                return_tensors="pt"
+                ))["d_rep"]  # (sparse) doc rep in voc space, shape (docs, 30522,)
 
             for i in range(doc_reps.shape[0]): #for each doc
                 # get the number of non-zero dimensions in the rep:
