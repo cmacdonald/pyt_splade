@@ -44,7 +44,7 @@ def splade(
                 max_length=max_length,
                 return_attention_mask=True,
                 return_tensors="pt",
-                ))["d_rep"].to(device)  # (sparse) doc rep in voc space, shape (docs, 30522,)
+                ).to(device))["d_rep"]  # (sparse) doc rep in voc space, shape (docs, 30522,)
 
             for i in range(doc_reps.shape[0]): #for each doc
                 # get the number of non-zero dimensions in the rep:
