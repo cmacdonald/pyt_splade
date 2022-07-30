@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='pyt_splade',
-    version='0.0.1',
+    version='0.0.2',
     description='PyT wrapper for SPLADE',
     url='https://github.com/cmacdonald/pyt_splade',
     classifiers=[
