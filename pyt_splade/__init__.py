@@ -7,7 +7,7 @@ import pandas as pd
 
 def _matchop(t, w):
     import base64
-    if '##' in t:
+    if not t.isalnum():
         encoded = base64.b64encode(t.encode('utf-8')).decode("utf-8") 
         t = f'#base64({encoded})'
     if w != 1:
