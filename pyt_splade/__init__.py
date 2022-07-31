@@ -63,7 +63,7 @@ class SpladeFactory():
                     # get the number of non-zero dimensions in the rep:
                     col = torch.nonzero(doc_reps[i]).squeeze().cpu().tolist()
 
-                    # now let's inspect the bow representation:                
+                    # now let's create the bow representation as a dictionary               
                     weights = doc_reps[i,col].cpu().tolist()
                     d = {self.reverse_voc[k] : v for k, v in zip(col, weights)}
                     rtr.append([df.iloc[i].docno, d])
@@ -71,7 +71,7 @@ class SpladeFactory():
         return pt.apply.generic(_transform_indexing)
 
     
-    def query(self) -> pt.Transformer:
+    def query(self, mult=100) -> pt.Transformer:
     
         def _transform_query(df):
             from pyterrier.model import push_queries
@@ -90,12 +90,16 @@ class SpladeFactory():
                 
                 for i in range(query_reps.shape[0]): #for each query
                     # get the number of non-zero dimensions in the rep:
-                    col = torch.nonzero(query_reps[i]).squeeze().cpu().tolist()
+                    cols = torch.nonzero(query_reps[i]).squeeze().cpu().tolist()
                     # and corresponding weights               
-                    weights = query_reps[i,col].cpu().tolist()
+                    weights = query_reps[i,cols].cpu().tolist()
 
-                    # now let's create the bow representation in terrier's matchop QL
-                    newquery = ' '.join( _matchop(self.reverse_voc[k], v) for k, v in zip(col, weights))
+                    # Now let's create the bow representation in terrier's matchop QL.
+                    # We scale by mult(=100) to better match the quantized weights in 
+                    # the inverted index created by toks2doc(). These defaults match the
+                    # parameters suggested for Anserini in Splade repo, namely
+                    # quantization_factor_document=100 quantization_factor_query=100.
+                    newquery = ' '.join( _matchop(self.reverse_voc[k], v * mult) for k, v in zip(cols, weights))
                     new_queries.append(newquery)
             
             rtr = push_queries(df)
