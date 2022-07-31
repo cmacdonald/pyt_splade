@@ -14,7 +14,10 @@ class TestBasic(unittest.TestCase):
         import pyt_splade
         df = (self.factory.indexing() >> pyt_splade.toks2doc()).transform_iter([{'docno' : 'd1', 'text' : 'hello there'}])
         self.assertTrue('there there' in df.iloc[0].text)
-        df = self.factory.indexing().transform_iter([{'docno' : 'd1', 'text' : 'hello there'}, {'docno' : 'd1', 'text' : 'hello hello hello hello hello there'}])
+        df = self.factory.indexing().transform_iter([
+            {'docno' : 'd1', 'text' : 'hello there'}, 
+            {'docno' : 'd1', 'text' : ''}, #empty 
+            {'docno' : 'd1', 'text' : 'hello hello hello hello hello there'}])
 
     def test_transformer_querying(self):
             q = self.factory.query()
