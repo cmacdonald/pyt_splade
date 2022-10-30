@@ -23,13 +23,16 @@ class SpladeFactory():
         tokenizer=None,
         agg='max',
         max_length = 256,
-        gpu=True):
+        device=None):
 
         import torch
         self.max_length = max_length
         self.model = model
         self.tokenizer = tokenizer
-        self.device = torch.device('cuda') if gpu else torch.device('cpu')
+        if device is None:
+            self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        else:
+            self.device = torch.device(device)
         if isinstance(model, str):
             from splade.models.transformer_rep import Splade
             if self.tokenizer is None:
@@ -37,8 +40,7 @@ class SpladeFactory():
                 self.tokenizer = AutoTokenizer.from_pretrained(model)
             self.model = Splade(model, agg=agg)
             self.model.eval()
-            if gpu:
-                self.model.to(self.device)
+            self.model = self.model.to(self.device)
         else:
             if self.tokenizer is None:
                 raise ValueError("you must specify tokenizer if passing a model")
@@ -66,9 +68,9 @@ class SpladeFactory():
 
                     # now let's create the bow representation as a dictionary               
                     weights = doc_reps[i,col].cpu().tolist()
-                    d = {self.reverse_voc[k] : v for k, v in zip(col, weights)}
-                    rtr.append([df.iloc[i].docno, d])
-            return pd.DataFrame(rtr, columns=['docno', 'toks'])
+                    d = {self.reverse_voc[k] : v for k, v in sorted(zip(col, weights), key=lambda x: (-x[1], x[0]))}
+                    rtr.append(d)
+            return df.assign(toks=rtr)
         return pt.apply.generic(_transform_indexing)
 
     
@@ -100,7 +102,7 @@ class SpladeFactory():
                     # the inverted index created by toks2doc(). These defaults match the
                     # parameters suggested for Anserini in Splade repo, namely
                     # quantization_factor_document=100 quantization_factor_query=100.
-                    newquery = ' '.join( _matchop(self.reverse_voc[k], v * mult) for k, v in zip(cols, weights))
+                    newquery = ' '.join( _matchop(self.reverse_voc[k], v * mult) for k, v in sorted(zip(cols, weights), key=lambda x: (-x[1], x[0])))
                     new_queries.append(newquery)
             
             rtr = push_queries(df)
