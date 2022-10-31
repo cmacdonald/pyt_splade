@@ -8,7 +8,7 @@ class TestBasic(unittest.TestCase):
         if not pt.started():
             pt.init()
         import pyt_splade
-        self.factory = pyt_splade.SpladeFactory(gpu=False)
+        self.factory = pyt_splade.SpladeFactory(device='cpu')
 
     def test_transformer_indexing(self):
         import pyt_splade
@@ -24,3 +24,13 @@ class TestBasic(unittest.TestCase):
             df = q.transform_iter([{'qid' : 'q1', 'query' : 'chemical reactions'}])
             print(df.iloc[0].query)
             self.assertTrue('#combine' in df.iloc[0].query)
+
+    def test_transformer_empty_query(self):
+        q = self.factory.query()
+        res = q(pd.DataFrame([], columns=['qid', 'query']))
+        self.assertEqual(['qid', 'query_0', 'query'], list(res.columns))
+
+    def test_transformer_empty_doc(self):
+        d = self.factory.indexing()
+        res = d(pd.DataFrame([], columns=['docno', 'text']))
+        self.assertEqual(['docno', 'text', 'toks'], list(res.columns))
