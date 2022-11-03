@@ -8,6 +8,7 @@ An example of a SPLADE indexing and retrieval using PyTerrier transformers.
 We use [Naver's SPLADE repository](https://github.com/naver/splade) as a dependency: 
 
 ```python
+%pip install -q git+https://github.com/terrier-org/pyterrier.git
 %pip install -q git+https://github.com/naver/splade.git
 %pip install -q git+https://github.com/cmacdonald/pyt_splade.git
 ```
@@ -16,7 +17,7 @@ We use [Naver's SPLADE repository](https://github.com/naver/splade) as a depende
 
 Indexing takes place as a pipeline: we apply SPLADE transformation of the documents, which maps raw text into a dictionary of BERT WordPiece tokens and corresponding weights. The underlying indexer, Terrier, cant handle this form directly, so a further transformer (`pyt_splade.toks2doc()`) makes this into a new textual representation.
 
-The Terrier indexer is configured carefully to index tokens unchanged. 
+The Terrier indexer is configured to index tokens unchanged. 
 
 ```python
 
@@ -25,16 +26,14 @@ pt.init(version='snapshot')
 
 import pyt_splade
 factory = pyt_splade.SpladeFactory()
-indexer = pt.IterDictIndexer('./msmarco_psg')
-indexer.setProperty("termpipelines", "")
-indexer.setProperty("tokeniser", "WhitespaceTokeniser")
+indexer = pt.IterDictIndexer('./msmarco_psg', pretokenised=True)
 
-indxr_pipe = (factory.indexing() >> pyt_splade.toks2doc() >> indexer)
+indxr_pipe = factory.indexing() >> indexer
 index_ref = indxr_pipe.index(dataset.get_corpus_iter(), batch_size=128)
 
 ```
 
-NB: This requires a snapshot version of Terrier (c.f. `pt.init(version='snapshot')`)
+NB: This currently requires a snapshot version of PyTerrier and Terrier (c.f.  `pt.init(version='snapshot')`).
 
 # Retrieval
 
@@ -46,10 +45,6 @@ We apply this as a query encoding transformer. It encodes the query into Terrier
 splade_retr = factory.query() >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
 
 ```
-
-# TODO
-
- - expansion?
 
 # Credits 
 
