@@ -14,7 +14,7 @@ We use [Naver's SPLADE repository](https://github.com/naver/splade) as a depende
 
 # Indexing
 
-Indexing takes place as a pipeline: we apply SPLADE transformation of the documents, which maps raw text into a dictionary of BERT WordPiece tokens and corresponding weights. The underlying indexer, Terrier, cant handle this form directly, so a further transformer (`pyt_splade.toks2doc()`) makes this into a new textual representation.
+Indexing takes place as a pipeline: we apply SPLADE transformation of the documents, which maps raw text into a dictionary of BERT WordPiece tokens and corresponding weights. The underlying indexer, Terrier, is configured to handle arbitrary word counts without further tokenisation (`pretokenised=True`).
 
 The Terrier indexer is configured to index tokens unchanged. 
 
