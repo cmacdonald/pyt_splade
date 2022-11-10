@@ -8,9 +8,8 @@ An example of a SPLADE indexing and retrieval using PyTerrier transformers.
 We use [Naver's SPLADE repository](https://github.com/naver/splade) as a dependency: 
 
 ```python
-%pip install -q git+https://github.com/terrier-org/pyterrier.git
-%pip install -q git+https://github.com/naver/splade.git
-%pip install -q git+https://github.com/cmacdonald/pyt_splade.git
+%pip install -q python-terrier
+%pip install -q git+https://github.com/naver/splade.git git+https://github.com/cmacdonald/pyt_splade.git
 ```
 
 # Indexing
@@ -22,7 +21,7 @@ The Terrier indexer is configured to index tokens unchanged.
 ```python
 
 import pyterrer as pt
-pt.init(version='snapshot')
+pt.init()
 
 import pyt_splade
 factory = pyt_splade.SpladeFactory()
@@ -32,8 +31,6 @@ indxr_pipe = factory.indexing() >> indexer
 index_ref = indxr_pipe.index(dataset.get_corpus_iter(), batch_size=128)
 
 ```
-
-NB: This currently requires a snapshot version of PyTerrier and Terrier (c.f.  `pt.init(version='snapshot')`).
 
 # Retrieval
 
