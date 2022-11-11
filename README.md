@@ -24,10 +24,10 @@ import pyterrer as pt
 pt.init()
 
 import pyt_splade
-factory = pyt_splade.SpladeFactory()
+splade = pyt_splade.SpladeFactory()
 indexer = pt.IterDictIndexer('./msmarco_psg', pretokenised=True)
 
-indxr_pipe = factory.indexing() >> indexer
+indxr_pipe = splade.indexing() >> indexer
 index_ref = indxr_pipe.index(dataset.get_corpus_iter(), batch_size=128)
 
 ```
@@ -39,7 +39,7 @@ We apply this as a query encoding transformer. It encodes the query into Terrier
 
 ```python
 
-splade_retr = factory.query() >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
+splade_retr = splade.query() >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
 
 ```
 
