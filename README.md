@@ -43,6 +43,10 @@ splade_retr = splade.query() >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
 
 ```
 
+# Demo
+
+We have a demo of PyTerrier_SPLADE at https://huggingface.co/spaces/terrierteam/splade
+
 # Credits 
 
 Craig Macdonald
