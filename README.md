@@ -20,7 +20,7 @@ The Terrier indexer is configured to index tokens unchanged.
 
 ```python
 
-import pyterrer as pt
+import pyterrier as pt
 pt.init()
 
 import pyt_splade
