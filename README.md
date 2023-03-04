@@ -39,7 +39,7 @@ We apply this as a query encoding transformer. It encodes the query into Terrier
 
 ```python
 
-splade_retr = splade.matchop_query_encoder() >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
+splade_retr = splade.query_encoder(matchop=True) >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
 
 ```
 
