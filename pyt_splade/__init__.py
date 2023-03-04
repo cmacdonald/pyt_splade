@@ -42,8 +42,8 @@ class Splade():
 
         self.reverse_voc = {v: k for k, v in self.tokenizer.vocab.items()}
 
-    def doc_encoder(self, field='text', batch_size=100, sparse=True, verbose=False) -> pt.Transformer:
-        return SpladeEncoder(self, field, 'toks' if sparse else 'doc_vec', 'd', sparse, batch_size, verbose)
+    def doc_encoder(self, text_field='text', batch_size=100, sparse=True, verbose=False) -> pt.Transformer:
+        return SpladeEncoder(self, text_field, 'toks' if sparse else 'doc_vec', 'd', sparse, batch_size, verbose)
     indexing = doc_encoder # backward compatible name
 
     def query_encoder(self, batch_size=100, sparse=True, verbose=False) -> pt.Transformer:
@@ -53,8 +53,8 @@ class Splade():
         return self.query_encoder(batch_size, sparse=True, verbose=verbose) >> MatchOp(mult=mult)
     query = matchop_query_encoder # backward compatible name
 
-    def scorer(self, field='text', batch_size=100, verbose=False) -> pt.Transformer:
-        return SpladeScorer(self, field, batch_size, verbose)
+    def scorer(self, text_field='text', batch_size=100, verbose=False) -> pt.Transformer:
+        return SpladeScorer(self, text_field, batch_size, verbose)
 
     def encode(self, texts, rep='d', format='dict'):
         rtr = []
@@ -90,9 +90,9 @@ SpladeFactory = Splade # backward compatible name
 
 
 class SpladeEncoder(pt.Transformer):
-    def __init__(self, splade, field, out_field, rep, sparse=True, batch_size=100, verbose=False):
+    def __init__(self, splade, text_field, out_field, rep, sparse=True, batch_size=100, verbose=False):
         self.splade = splade
-        self.field = field
+        self.text_field = text_field
         self.out_field = out_field
         self.rep = rep
         self.sparse = sparse
@@ -100,10 +100,10 @@ class SpladeEncoder(pt.Transformer):
         self.verbose = verbose
 
     def transform(self, df):
-        assert self.field in df.columns
-        it = iter(df[self.field])
+        assert self.text_field in df.columns
+        it = iter(df[self.text_field])
         if self.verbose:
-            it = pt.tqdm(it, total=len(df), unit=self.field)
+            it = pt.tqdm(it, total=len(df), unit=self.text_field)
         res = []
         for batch in more_itertools.chunked(it, self.batch_size):
             res.extend(self.splade.encode(batch, self.rep, format='dict' if self.sparse else 'np'))
@@ -111,14 +111,14 @@ class SpladeEncoder(pt.Transformer):
 
 
 class SpladeScorer(pt.Transformer):
-    def __init__(self, splade, field, batch_size=100, verbose=False):
+    def __init__(self, splade, text_field, batch_size=100, verbose=False):
         self.splade = splade
-        self.field = field
+        self.text_field = text_field
         self.batch_size = batch_size
         self.verbose = verbose
 
     def transform(self, df):
-        assert all(f in df.columns for f in ['query', self.field])
+        assert all(f in df.columns for f in ['query', self.text_field])
         it = df.groupby('query')
         if self.verbose:
             it = pt.tqdm(it, unit='query')
@@ -126,7 +126,7 @@ class SpladeScorer(pt.Transformer):
         for query, df in it:
             query_enc = self.splade.encode([query], 'q', 'torch')
             scores = []
-            for batch in more_itertools.chunked(df[self.field], self.batch_size):
+            for batch in more_itertools.chunked(df[self.text_field], self.batch_size):
                 doc_enc = self.splade.encode(batch, 'd', 'torch')
                 scores.append((query_enc @ doc_enc.T).flatten().cpu().numpy())
             res.append(df.assign(score=np.concatenate(scores)))
