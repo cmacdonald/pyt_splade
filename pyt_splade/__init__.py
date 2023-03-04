@@ -46,12 +46,15 @@ class Splade():
         return SpladeEncoder(self, text_field, 'toks' if sparse else 'doc_vec', 'd', sparse, batch_size, verbose)
     indexing = doc_encoder # backward compatible name
 
-    def query_encoder(self, batch_size=100, sparse=True, verbose=False) -> pt.Transformer:
-        return SpladeEncoder(self, 'query', 'query_toks' if sparse else 'query_vec', 'q', sparse, batch_size, verbose)
+    def query_encoder(self, batch_size=100, sparse=True, verbose=False, matchop=False, matchop_mult=100) -> pt.Transformer:
+        res = SpladeEncoder(self, 'query', 'query_toks' if sparse else 'query_vec', 'q', sparse, batch_size, verbose)
+        if matchop:
+            res = res >> MatchOp(mult=matchop_mult)
+        return res
 
-    def matchop_query_encoder(self, batch_size=100, verbose=False, mult=100) -> pt.Transformer:
-        return self.query_encoder(batch_size, sparse=True, verbose=verbose) >> MatchOp(mult=mult)
-    query = matchop_query_encoder # backward compatible name
+    def query(self, batch_size=100, sparse=True, verbose=False, matchop=True, matchop_mult=100) -> pt.Transformer
+        # backward compatible name w/ default matchop=True
+        return self.query_encoder(batch_size, sparse, verbose, matchop, matchop_mult)
 
     def scorer(self, text_field='text', batch_size=100, verbose=False) -> pt.Transformer:
         return SpladeScorer(self, text_field, batch_size, verbose)
