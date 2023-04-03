@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 import pyterrier as pt
 assert pt.started()
 from typing import Union
