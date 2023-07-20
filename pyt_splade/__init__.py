@@ -52,7 +52,7 @@ class Splade():
             res = res >> MatchOp(mult=matchop_mult)
         return res
 
-    def query(self, batch_size=100, sparse=True, verbose=False, matchop=True, matchop_mult=100) -> pt.Transformer
+    def query(self, batch_size=100, sparse=True, verbose=False, matchop=True, matchop_mult=100) -> pt.Transformer:
         # backward compatible name w/ default matchop=True
         return self.query_encoder(batch_size, sparse, verbose, matchop, matchop_mult)
 
