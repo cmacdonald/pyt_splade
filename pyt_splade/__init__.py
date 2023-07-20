@@ -46,8 +46,8 @@ class Splade():
         return SpladeEncoder(self, text_field, 'toks' if sparse else 'doc_vec', 'd', sparse, batch_size, verbose)
     indexing = doc_encoder # backward compatible name
 
-    def query_encoder(self, batch_size=100, sparse=True, verbose=False, matchop=False, matchop_mult=100) -> pt.Transformer:
-        res = SpladeEncoder(self, 'query', 'query_toks' if sparse else 'query_vec', 'q', sparse, batch_size, verbose)
+    def query_encoder(self, batch_size=100, sparse=True, verbose=False, matchop=False, matchop_mult=100, scale=1.) -> pt.Transformer:
+        res = SpladeEncoder(self, 'query', 'query_toks' if sparse else 'query_vec', 'q', sparse, batch_size, verbose, scale)
         if matchop:
             res = res >> MatchOp(mult=matchop_mult)
         return res
@@ -59,7 +59,7 @@ class Splade():
     def scorer(self, text_field='text', batch_size=100, verbose=False) -> pt.Transformer:
         return SpladeScorer(self, text_field, batch_size, verbose)
 
-    def encode(self, texts, rep='d', format='dict'):
+    def encode(self, texts, rep='d', format='dict', scale=1.):
         rtr = []
         with torch.no_grad():
             reps = self.model(**{rep+'_kwargs': self.tokenizer(
@@ -71,6 +71,7 @@ class Splade():
                 return_attention_mask=True,
                 return_tensors="pt",
             ).to(self.device)})[rep+'_rep']
+            reps = reps * scale
         if format == 'dict':
             reps = reps.cpu()
             for i in range(reps.shape[0]):
@@ -93,7 +94,7 @@ SpladeFactory = Splade # backward compatible name
 
 
 class SpladeEncoder(pt.Transformer):
-    def __init__(self, splade, text_field, out_field, rep, sparse=True, batch_size=100, verbose=False):
+    def __init__(self, splade, text_field, out_field, rep, sparse=True, batch_size=100, verbose=False, scale=1.):
         self.splade = splade
         self.text_field = text_field
         self.out_field = out_field
@@ -101,6 +102,7 @@ class SpladeEncoder(pt.Transformer):
         self.sparse = sparse
         self.batch_size = batch_size
         self.verbose = verbose
+        self.scale = scale
 
     def transform(self, df):
         assert self.text_field in df.columns
@@ -109,7 +111,7 @@ class SpladeEncoder(pt.Transformer):
             it = pt.tqdm(it, total=len(df), unit=self.text_field)
         res = []
         for batch in more_itertools.chunked(it, self.batch_size):
-            res.extend(self.splade.encode(batch, self.rep, format='dict' if self.sparse else 'np'))
+            res.extend(self.splade.encode(batch, self.rep, format='dict' if self.sparse else 'np', self.scale))
         return df.assign(**{self.out_field: res})
 
 
