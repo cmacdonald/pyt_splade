@@ -111,7 +111,7 @@ class SpladeEncoder(pt.Transformer):
             it = pt.tqdm(it, total=len(df), unit=self.text_field)
         res = []
         for batch in more_itertools.chunked(it, self.batch_size):
-            res.extend(self.splade.encode(batch, self.rep, format='dict' if self.sparse else 'np', self.scale))
+            res.extend(self.splade.encode(batch, self.rep, format='dict' if self.sparse else 'np', scale=self.scale))
         return df.assign(**{self.out_field: res})
 
 
