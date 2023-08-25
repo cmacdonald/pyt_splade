@@ -1,6 +1,8 @@
 import unittest
 import pandas as pd
 import tempfile
+from unittest.mock import MagicMock
+
 class TestBasic(unittest.TestCase):
 
     def setUp(self):
@@ -34,3 +36,24 @@ class TestBasic(unittest.TestCase):
         d = self.factory.indexing()
         res = d(pd.DataFrame([], columns=['docno', 'text']))
         self.assertEqual(['docno', 'text', 'toks'], list(res.columns))
+
+    def test_model_output_one_dim_non_zero_rep(self):
+        import torch
+        one_dim_non_zero = torch.zeros(1, self.factory.model.output_dim)
+        one_dim_non_zero[0][0] = 1.
+        mock_return = {
+            "d_rep": one_dim_non_zero,
+            "q_rep": one_dim_non_zero,
+        }
+        mock_model = MagicMock(return_value=mock_return)
+        self.factory.model = mock_model
+
+        res = self.factory.indexing().transform(
+            pd.DataFrame([{'docno' : 'd1', 'text' : 'hello there'}], columns=['docno', 'text'])
+        )
+        self.assertEqual(['docno', 'text', 'toks'], list(res.columns))
+
+        res = self.factory.query().transform(
+            pd.DataFrame([{'qid' : 'd1', 'query' : 'chemical reactions'}], columns=['qid', 'query'])
+        )
+        self.assertEqual(['qid', 'query_0', 'query'], list(res.columns))
