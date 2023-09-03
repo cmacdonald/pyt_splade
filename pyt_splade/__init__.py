@@ -65,6 +65,9 @@ class SpladeFactory():
                     for i in range(doc_reps.shape[0]): #for each doc
                         # get the number of non-zero dimensions in the rep:
                         col = torch.nonzero(doc_reps[i]).squeeze().cpu().tolist()
+                        # col could be int when only 1 dim is non zero in doc_reps[i]
+                        if isinstance(col, int):
+                            col = [col]
 
                         # now let's create the bow representation as a dictionary               
                         weights = doc_reps[i,col].cpu().tolist()
@@ -95,6 +98,10 @@ class SpladeFactory():
                     for i in range(query_reps.shape[0]): #for each query
                         # get the number of non-zero dimensions in the rep:
                         cols = torch.nonzero(query_reps[i]).squeeze().cpu().tolist()
+                        # cols could be int when only 1 dim is non zero in query_reps[i]
+                        if isinstance(cols, int):
+                            cols = [cols]
+
                         # and corresponding weights               
                         weights = query_reps[i,cols].cpu().tolist()
 
