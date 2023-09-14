@@ -1,8 +1,8 @@
 import base64
 import string
 import more_itertools
-from multiprocessing.sharedctypes import Value
 import pyterrier as pt
+
 assert pt.started()
 from typing import Union
 import torch
@@ -13,14 +13,12 @@ import pandas as pd
 class Splade():
 
     def __init__(
-        self,
-        model : Union[torch.nn.Module, str] = "naver/splade-cocondenser-ensembledistil",
-        tokenizer=None,
-        agg='max',
-        max_length = 256,
-        device=None):
-
-        import torch
+            self,
+            model: Union[torch.nn.Module, str] = "naver/splade-cocondenser-ensembledistil",
+            tokenizer=None,
+            agg='max',
+            max_length=256,
+            device=None):
         self.max_length = max_length
         self.model = model
         self.tokenizer = tokenizer
@@ -42,19 +40,22 @@ class Splade():
 
         self.reverse_voc = {v: k for k, v in self.tokenizer.vocab.items()}
 
-    def doc_encoder(self, text_field='text', batch_size=100, sparse=True, verbose=False) -> pt.Transformer:
-        return SpladeEncoder(self, text_field, 'toks' if sparse else 'doc_vec', 'd', sparse, batch_size, verbose)
-    indexing = doc_encoder # backward compatible name
+    def doc_encoder(self, text_field='text', batch_size=100, sparse=True, verbose=False, scale=100) -> pt.Transformer:
+        out_field = 'toks' if sparse else 'doc_vec'
+        return SpladeEncoder(self, text_field, out_field, 'd', sparse, batch_size, verbose, scale)
 
-    def query_encoder(self, batch_size=100, sparse=True, verbose=False, matchop=False, matchop_mult=100, scale=1.) -> pt.Transformer:
-        res = SpladeEncoder(self, 'query', 'query_toks' if sparse else 'query_vec', 'q', sparse, batch_size, verbose, scale)
+    indexing = doc_encoder  # backward compatible name
+
+    def query_encoder(self, batch_size=100, sparse=True, verbose=False, matchop=False, scale=1.) -> pt.Transformer:
+        out_field = 'query_toks' if sparse else 'query_vec'
+        res = SpladeEncoder(self, 'query', out_field, 'q', sparse, batch_size, verbose)
         if matchop:
-            res = res >> MatchOp(mult=matchop_mult)
+            res = res >> MatchOp()
         return res
 
-    def query(self, batch_size=100, sparse=True, verbose=False, matchop=True, matchop_mult=100) -> pt.Transformer:
+    def query(self, batch_size=100, sparse=True, verbose=False, matchop=True, scale=100) -> pt.Transformer:
         # backward compatible name w/ default matchop=True
-        return self.query_encoder(batch_size, sparse, verbose, matchop, matchop_mult)
+        return self.query_encoder(batch_size, sparse, verbose, matchop, scale)
 
     def scorer(self, text_field='text', batch_size=100, verbose=False) -> pt.Transformer:
         return SpladeScorer(self, text_field, batch_size, verbose)
@@ -62,7 +63,7 @@ class Splade():
     def encode(self, texts, rep='d', format='dict', scale=1.):
         rtr = []
         with torch.no_grad():
-            reps = self.model(**{rep+'_kwargs': self.tokenizer(
+            reps = self.model(**{rep + '_kwargs': self.tokenizer(
                 texts,
                 add_special_tokens=True,
                 padding="longest",  # pad to max sequence length in batch
@@ -70,7 +71,7 @@ class Splade():
                 max_length=self.max_length,
                 return_attention_mask=True,
                 return_tensors="pt",
-            ).to(self.device)})[rep+'_rep']
+            ).to(self.device)})[rep + '_rep']
             reps = reps * scale
         if format == 'dict':
             reps = reps.cpu()
@@ -79,7 +80,12 @@ class Splade():
                 col = torch.nonzero(reps[i]).squeeze().tolist()
                 # now let's create the bow representation as a dictionary
                 weights = reps[i, col].cpu().tolist()
-                d = {self.reverse_voc[k] : v for k, v in sorted(zip(col, weights), key=lambda x: (-x[1], x[0]))}
+                # if document cast to int to make the weights ready for terrier indexing
+                if rep == "d":
+                    weights = list(map(int, weights))
+                sorted_weights = sorted(zip(col, weights), key=lambda x: (-x[1], x[0]))
+                # create the dict removing the weights less than 1, i.e. 0, that are not helpful
+                d = {self.reverse_voc[k]: v for k, v in sorted_weights if v > 0}
                 rtr.append(d)
         elif format == 'np':
             reps = reps.cpu().numpy()
@@ -90,7 +96,7 @@ class Splade():
         return rtr
 
 
-SpladeFactory = Splade # backward compatible name
+SpladeFactory = Splade  # backward compatible name
 
 
 class SpladeEncoder(pt.Transformer):
@@ -142,14 +148,13 @@ class SpladeScorer(pt.Transformer):
 
 
 class MatchOp(pt.Transformer):
-    def __init__(self, mult=100):
-        self.mult = mult
 
     def transform(self, df):
         assert 'query_toks' in df.columns
         from pyterrier.model import push_queries
         rtr = push_queries(df)
-        rtr = rtr.assign(query=df.query_toks.apply(lambda toks: ' '.join(_matchop(k, v * self.mult) for k, v in toks.items())))
+        rtr = rtr.assign(
+            query=df.query_toks.apply(lambda toks: ' '.join(_matchop(k, v) for k, v in toks.items())))
         rtr = rtr.drop(columns=['query_toks'])
         return rtr
 
@@ -163,14 +168,12 @@ def _matchop(t, w):
     return t
 
 
-
 def toks2doc(mult=100):
-    
     def _dict_tf2text(tfdict):
         rtr = ""
         for t in tfdict:
-            for i in range(int(mult*tfdict[t])):
-                rtr += t + " " 
+            for i in range(int(mult * tfdict[t])):
+                rtr += t + " "
         return rtr
 
     def _rowtransform(df):
@@ -178,6 +181,5 @@ def toks2doc(mult=100):
         df["text"] = df['toks'].apply(_dict_tf2text)
         df.drop(columns=['toks'], inplace=True)
         return df
-    
+
     return pt.apply.generic(_rowtransform)
-    
