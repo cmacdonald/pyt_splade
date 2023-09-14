@@ -46,9 +46,9 @@ class Splade():
 
     indexing = doc_encoder  # backward compatible name
 
-    def query_encoder(self, batch_size=100, sparse=True, verbose=False, matchop=False, scale=1.) -> pt.Transformer:
+    def query_encoder(self, batch_size=100, sparse=True, verbose=False, matchop=False, scale=100) -> pt.Transformer:
         out_field = 'query_toks' if sparse else 'query_vec'
-        res = SpladeEncoder(self, 'query', out_field, 'q', sparse, batch_size, verbose)
+        res = SpladeEncoder(self, 'query', out_field, 'q', sparse, batch_size, verbose, scale)
         if matchop:
             res = res >> MatchOp()
         return res
