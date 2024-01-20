@@ -76,7 +76,7 @@ class Splade():
             reps = reps.cpu()
             for i in range(reps.shape[0]):
                 # get the number of non-zero dimensions in the rep:
-                col = torch.nonzero(reps[i]).squeeze().tolist()
+                col = torch.nonzero(reps[i]).squeeze(1).tolist()
                 # now let's create the bow representation as a dictionary
                 weights = reps[i, col].cpu().tolist()
                 d = {self.reverse_voc[k] : v for k, v in sorted(zip(col, weights), key=lambda x: (-x[1], x[0]))}
