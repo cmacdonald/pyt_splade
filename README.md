@@ -43,6 +43,25 @@ splade_retr = splade.query() >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
 
 ```
 
+# PISA
+
+For faster retrieval with SPLADE, you can use the fast PISA retrieval backend provided by [PyTerrier_PISA](https://github.com/terrierteam/pyterrier_pisa):
+
+```python
+import pyt_splade
+splade = pyt_splade.Splade()
+dataset = pt.get_dataset('irds:msmarco-passage')
+index = PisaIndex('./msmarco-passage-splade', stemmer='none')
+
+# indexing
+idx_pipeline = splade.doc_encoder() >> index.toks_indexer()
+idx_pipeline.index(dataset.get_corpus_iter())
+
+# retrieval
+
+retr_pipeline = splade.query_encoder() >> index.quantized()
+```
+
 # Demo
 
 We have a demo of PyTerrier_SPLADE at https://huggingface.co/spaces/terrierteam/splade
