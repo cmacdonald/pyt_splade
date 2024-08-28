@@ -21,7 +21,6 @@ The Terrier indexer is configured to index tokens unchanged.
 ```python
 
 import pyterrier as pt
-pt.init()
 
 import pyt_splade
 splade = pyt_splade.Splade()
@@ -39,7 +38,7 @@ We apply this as a query encoding transformer. It encodes the query into Terrier
 
 ```python
 
-splade_retr = splade.query_encoder(matchop=True) >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
+splade_retr = splade.query_encoder(matchop=True) >> pt.terrier.Retrieve('./msmarco_psg', wmodel='Tf')
 
 ```
 
