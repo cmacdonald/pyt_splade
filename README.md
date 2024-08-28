@@ -21,13 +21,12 @@ The Terrier indexer is configured to index tokens unchanged.
 ```python
 
 import pyterrier as pt
-pt.init()
 
 import pyt_splade
-splade = pyt_splade.SpladeFactory()
+splade = pyt_splade.Splade()
 indexer = pt.IterDictIndexer('./msmarco_psg', pretokenised=True)
 
-indxr_pipe = splade.indexing() >> indexer
+indxr_pipe = splade.doc_encoder() >> indexer
 index_ref = indxr_pipe.index(dataset.get_corpus_iter(), batch_size=128)
 
 ```
@@ -39,7 +38,18 @@ We apply this as a query encoding transformer. It encodes the query into Terrier
 
 ```python
 
-splade_retr = splade.query() >> pt.BatchRetrieve('./msmarco_psg', wmodel='Tf')
+splade_retr = splade.query_encoder(matchop=True) >> pt.terrier.Retrieve('./msmarco_psg', wmodel='Tf')
+
+```
+
+# Scoring
+
+SPLADE can also be used as a text scoring function.
+
+```python
+
+first_stage = ... # e.g., BM25, dense retrieval, etc.
+splade_scorer = first_stage >> pt.text.get_text(dataset, 'text') >> splade.scorer()
 
 ```
 
@@ -68,4 +78,5 @@ We have a demo of PyTerrier_SPLADE at https://huggingface.co/spaces/terrierteam/
 
 # Credits 
 
-Craig Macdonald
+ - Craig Macdonald
+ - Sean MacAvaney
