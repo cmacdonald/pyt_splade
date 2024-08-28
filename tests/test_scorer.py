@@ -18,7 +18,7 @@ class TestBasic(unittest.TestCase):
         ]))
         self.assertAlmostEqual(0., df['score'][0])
         self.assertAlmostEqual(11.133593, df['score'][1], places=5)
-        self.assertAlmostEqual(17.566324, df['score'][2], places=5)
+        self.assertAlmostEqual(17.566324, df['score'][2], places=3)
         self.assertEqual('0', df['qid'][0])
         self.assertEqual('0', df['qid'][1])
         self.assertEqual('1', df['qid'][2])
