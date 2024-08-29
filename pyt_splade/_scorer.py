@@ -22,7 +22,7 @@ class SpladeScorer(pt.Transformer):
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """Scores (re-ranks) the documents against the queries in the input DataFrame."""
-        pta.validate.results_frame(df, ['query', self.text_field])
+        pta.validate.result_frame(df, ['query', self.text_field])
         it = df.groupby('query')
         if self.verbose:
             it = pt.tqdm(it, unit='query')

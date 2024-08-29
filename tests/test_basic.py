@@ -9,7 +9,6 @@ class TestBasic(unittest.TestCase):
         self.factory = pyt_splade.Splade(device='cpu')
 
     def test_transformer_indexing(self):
-        import pyt_splade
         df = (self.factory.indexing() >> pyt_splade.toks2doc()).transform_iter([{'docno' : 'd1', 'text' : 'hello there'}])
         self.assertTrue('there there' in df.iloc[0].text)
         df = self.factory.indexing().transform_iter([

@@ -39,7 +39,7 @@ class Toks2Doc(pt.Transformer):
 
     def transform(self, inp: pd.DataFrame) -> pd.DataFrame:
         """Converts the toks field into a text field."""
-        res = inp.assign(toks=inp['toks'].apply(self._dict_tf2text))
+        res = inp.assign(text=inp['toks'].apply(self._dict_tf2text))
         res.drop(columns=['toks'], inplace=True)
         return res
 

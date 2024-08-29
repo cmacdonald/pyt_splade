@@ -43,7 +43,7 @@ class SpladeEncoder(pt.Transformer):
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """Encodes the text field in the input DataFrame."""
-        pta.validate.columns(df, include=[self.text_field])
+        pta.validate.columns(df, includes=[self.text_field])
         it = iter(df[self.text_field])
         if self.verbose:
             it = pt.tqdm(it, total=len(df), unit=self.text_field)
