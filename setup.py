@@ -19,6 +19,6 @@ setup(
     license="Creative Commons Attribution-NonCommercial-ShareAlike",
     long_description=readme,
     install_requires=[
-        'splade', 'python-terrier'
+        'splade', 'python-terrier', 'pyterrier_alpha',
     ],
 )
