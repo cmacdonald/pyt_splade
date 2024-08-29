@@ -1,14 +1,12 @@
 import unittest
 import pandas as pd
-import tempfile
+from unittest.mock import MagicMock
+import pyt_splade
+
 class TestBasic(unittest.TestCase):
 
     def setUp(self):
-        import pyterrier as pt
-        if not pt.started():
-            pt.init()
-        import pyt_splade
-        self.factory = pyt_splade.SpladeFactory(device='cpu')
+        self.factory = pyt_splade.Splade(device='cpu')
 
     def test_transformer_indexing(self):
         import pyt_splade
@@ -34,3 +32,25 @@ class TestBasic(unittest.TestCase):
         d = self.factory.indexing()
         res = d(pd.DataFrame([], columns=['docno', 'text']))
         self.assertEqual(['docno', 'text', 'toks'], list(res.columns))
+
+    def test_model_output_one_dim_non_zero_rep(self):
+        import torch
+        one_dim_non_zero = torch.zeros(1, self.factory.model.output_dim)
+        one_dim_non_zero[0][0] = 1.
+        mock_return = {
+            "d_rep": one_dim_non_zero,
+            "q_rep": one_dim_non_zero,
+        }
+        factory = pyt_splade.SpladeFactory(device='cpu')
+        mock_model = MagicMock(return_value=mock_return)
+        factory.model = mock_model
+
+        res = factory.indexing()(
+            [{'docno' : 'd1', 'text' : 'hello there'}]
+        )
+        self.assertEqual(['docno', 'text', 'toks'], list(res.columns))
+
+        res = factory.query()(
+            [{'qid' : 'd1', 'query' : 'chemical reactions'}]
+        )
+        self.assertEqual(['qid', 'query_0', 'query'], list(res.columns))
