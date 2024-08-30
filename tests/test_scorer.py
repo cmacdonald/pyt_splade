@@ -4,10 +4,10 @@ import pyt_splade
 class TestScorer(unittest.TestCase):
 
     def setUp(self):
-        self.factory = pyt_splade.Splade(device='cpu')
+        self.splade = pyt_splade.Splade(device='cpu')
 
     def test_scorer(self):
-        df = self.factory.scorer()([
+        df = self.splade.scorer()([
           {'qid': '0', 'query': 'chemical reactions', 'docno' : 'd1', 'text' : 'hello there'},
           {'qid': '0', 'query': 'chemical reactions', 'docno' : 'd2', 'text' : 'chemistry society'},
           {'qid': '1', 'query': 'hello', 'docno' : 'd1', 'text' : 'hello there'},
