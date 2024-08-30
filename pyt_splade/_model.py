@@ -58,27 +58,22 @@ class Splade:
         out_field = 'toks' if sparse else 'doc_vec'
         return pyt_splade.SpladeEncoder(self, text_field, out_field, 'd', sparse, batch_size, verbose, scale)
 
-    indexing = doc_encoder  # backward compatible name
+    indexing = doc_encoder # backward compatible name
 
-    def query_encoder(self, batch_size=100, sparse=True, verbose=False, matchop=False, scale=100) -> pt.Transformer:
+    def query_encoder(self, batch_size=100, sparse=True, verbose=False, scale=100) -> pt.Transformer:
         """Returns a transformer that encodes a query field into a query representation.
 
         Args:
             batch_size: the batch size to use when encoding
             sparse: if True, the output will be a dict of term frequencies, otherwise a dense vector
             verbose: if True, show a progress bar
-            matchop: if True, convert the output to MatchOp syntax
             scale: the scale to apply to the term frequencies
         """
         out_field = 'query_toks' if sparse else 'query_vec'
         res = pyt_splade.SpladeEncoder(self, 'query', out_field, 'q', sparse, batch_size, verbose, scale)
-        if matchop:
-            res = res >> pyt_splade.MatchOp()
         return res
 
-    def query(self, batch_size=100, sparse=True, verbose=False, matchop=True, scale=100) -> pt.Transformer:
-        # backward compatible name w/ default matchop=True
-        return self.query_encoder(batch_size, sparse, verbose, matchop, scale)
+    query = query_encoder # backward compatible name
 
     def scorer(self, text_field='text', batch_size=100, verbose=False) -> pt.Transformer:
         """Returns a transformer that scores documents against queries.
