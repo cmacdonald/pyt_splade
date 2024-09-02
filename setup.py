@@ -15,9 +15,10 @@ setup(
     ],
     packages=['pyt_splade'] + ['pyt_splade.' + i for i in find_packages('pyt_splade')],
     # as per splade
+    include_package_data=True,
     license="Creative Commons Attribution-NonCommercial-ShareAlike",
     long_description=readme,
     install_requires=[
-        'splade', 'python-terrier'
+        'splade', 'python-terrier>=0.11.0', 'pyterrier_alpha',
     ],
 )

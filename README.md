@@ -34,11 +34,11 @@ index_ref = indxr_pipe.index(dataset.get_corpus_iter(), batch_size=128)
 # Retrieval
 
 Similarly, SPLADE encodes the query into BERT WordPieces and corresponding weights.
-We apply this as a query encoding transformer. It encodes the query into Terrier's matchop query language, to avoid tokenisation problems.
+We apply this as a query encoding transformer.
 
 ```python
 
-splade_retr = splade.query_encoder(matchop=True) >> pt.terrier.Retrieve('./msmarco_psg', wmodel='Tf')
+splade_retr = splade.query_encoder() >> pt.terrier.Retriever('./msmarco_psg', wmodel='Tf')
 
 ```
 

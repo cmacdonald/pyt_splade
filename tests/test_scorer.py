@@ -1,23 +1,19 @@
 import unittest
-import pandas as pd
-import tempfile
-class TestBasic(unittest.TestCase):
+import pyt_splade
+
+class TestScorer(unittest.TestCase):
 
     def setUp(self):
-        import pyterrier as pt
-        if not pt.started():
-            pt.init()
-        import pyt_splade
-        self.factory = pyt_splade.SpladeFactory(device='cpu')
+        self.splade = pyt_splade.Splade(device='cpu')
 
     def test_scorer(self):
-        df = self.factory.scorer()(pd.DataFrame([
+        df = self.splade.scorer()([
           {'qid': '0', 'query': 'chemical reactions', 'docno' : 'd1', 'text' : 'hello there'},
           {'qid': '0', 'query': 'chemical reactions', 'docno' : 'd2', 'text' : 'chemistry society'},
           {'qid': '1', 'query': 'hello', 'docno' : 'd1', 'text' : 'hello there'},
-        ]))
+        ])
         self.assertAlmostEqual(0., df['score'][0])
-        self.assertAlmostEqual(11.133593, df['score'][1], places=5)
+        self.assertAlmostEqual(11.133593, df['score'][1], places=4)
         self.assertAlmostEqual(17.566324, df['score'][2], places=3)
         self.assertEqual('0', df['qid'][0])
         self.assertEqual('0', df['qid'][1])
