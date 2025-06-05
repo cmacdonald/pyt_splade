@@ -19,6 +19,6 @@ setup(
     license="Creative Commons Attribution-NonCommercial-ShareAlike",
     long_description=readme,
     install_requires=[
-        'python-terrier>=0.11.0', 'pyterrier_alpha',
+        'transformers', 'python-terrier>=0.11.0', 'pyterrier_alpha',
     ],
 )
