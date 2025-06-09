@@ -106,15 +106,6 @@ class Splade:
         """
         rtr = []
         with torch.no_grad():
-            # reps = self.model(**{rep + '_kwargs': self.tokenizer(
-            #     texts,
-            #     add_special_tokens=True,
-            #     padding="longest",  # pad to max sequence length in batch
-            #     truncation="longest_first",  # truncates to max model length,
-            #     max_length=self.max_length,
-            #     return_attention_mask=True,
-            #     return_tensors="pt",
-            # ).to(self.device)})[rep + '_rep']
             inputs = self.tokenizer(
                 texts,
                 add_special_tokens=True,
