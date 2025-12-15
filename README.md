@@ -1,15 +1,11 @@
 # pyterrier_splade
 
-An example of a SPLADE indexing and retrieval using PyTerrier transformers. 
-
+An example of a SPLADE learned sparse indexing and retrieval using PyTerrier transformers. 
 
 # Installation
 
-We use [Naver's SPLADE repository](https://github.com/naver/splade) as a dependency: 
-
 ```python
-%pip install -q python-terrier
-%pip install -q git+https://github.com/naver/splade.git git+https://github.com/cmacdonald/pyt_splade.git
+%pip install -q git+https://github.com/cmacdonald/pyt_splade.git
 ```
 
 # Indexing
