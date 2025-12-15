@@ -11,7 +11,7 @@ jobs:
     
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.9', '3.12']
         java: [11]
         os: ['ubuntu-latest']
         architecture: ['x64']
@@ -31,13 +31,6 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
         distribution: 'zulu'
-    
-    - name: Install Terrier snapshot
-      if: matrix.terrier == '5.4-SNAPSHOT'
-      run: |
-        git clone https://github.com/terrier-org/terrier-core.git
-        cd terrier-core
-        mvn -B -DskipTests install
 
     - name: Install Python dependencies
       run: |
