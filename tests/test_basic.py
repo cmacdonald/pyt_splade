@@ -2,6 +2,7 @@ import unittest
 import pandas as pd
 from unittest.mock import MagicMock
 import pyt_splade
+import pyterrier as pt
 
 class TestBasic(unittest.TestCase):
 
@@ -23,10 +24,14 @@ class TestBasic(unittest.TestCase):
 
     def test_transformer_empty_query(self):
         q = self.splade.query_encoder()
+        self.assertEqual([["qid", "query"]], pt.inspect.transformer_inputs(q))
+        self.assertEqual(["qid", "query", "query_tok"], pt.inspect.transformer_outputs(q, ["qid", "query"]))
         res = q(pd.DataFrame([], columns=['qid', 'query']))
         self.assertEqual(['qid', 'query', 'query_toks'], list(res.columns))
 
     def test_transformer_empty_doc(self):
         d = self.splade.doc_encoder()
+        self.assertEqual([["docno", "text"]], pt.inspect.transformer_inputs(d))
+        self.assertEqual(["docno", "text", "toks"], pt.inspect.transformer_outputs(d, ["docno", "text"]))
         res = d(pd.DataFrame([], columns=['docno', 'text']))
         self.assertEqual(['docno', 'text', 'toks'], list(res.columns))
