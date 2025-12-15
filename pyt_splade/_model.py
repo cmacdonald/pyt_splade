@@ -32,11 +32,13 @@ class Splade:
         else:
             self.device = torch.device(device)
         if isinstance(model, str):
-            from splade.models.transformer_rep import Splade
+            from transformers import AutoModelForMaskedLM
             if self.tokenizer is None:
                 from transformers import AutoTokenizer
                 self.tokenizer = AutoTokenizer.from_pretrained(model)
-            self.model = Splade(model, agg=agg)
+            self.model = AutoModelForMaskedLM.from_pretrained(model)
+            self.agg = agg
+            self.model.output_dim = self.model.config.vocab_size
             self.model.eval()
             self.model = self.model.to(self.device)
         else:
@@ -102,15 +104,20 @@ class Splade:
         """
         rtr = []
         with torch.no_grad():
-            reps = self.model(**{rep + '_kwargs': self.tokenizer(
+            inputs = self.tokenizer(
                 texts,
                 add_special_tokens=True,
-                padding="longest",  # pad to max sequence length in batch
+                return_tensors="pt",
+                padding="longest",
                 truncation="longest_first",  # truncates to max model length,
                 max_length=self.max_length,
-                return_attention_mask=True,
-                return_tensors="pt",
-            ).to(self.device)})[rep + '_rep']
+            ).to(self.device)
+
+            reps = self.model(**inputs).logits
+            if self.agg == "sum":
+                reps = torch.sum(torch.log(1 + torch.relu(reps)) * inputs["attention_mask"].unsqueeze(-1), dim=1)
+            else:
+                reps, _ = torch.max(torch.log(1 + torch.relu(reps)) * inputs["attention_mask"].unsqueeze(-1), dim=1)
             reps = reps * scale
         if format == 'dict':
             reps = reps.cpu()

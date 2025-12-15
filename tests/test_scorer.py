@@ -1,4 +1,5 @@
 import unittest
+import pandas as pd
 import pyt_splade
 
 class TestScorer(unittest.TestCase):
@@ -7,11 +8,11 @@ class TestScorer(unittest.TestCase):
         self.splade = pyt_splade.Splade(device='cpu')
 
     def test_scorer(self):
-        df = self.splade.scorer()([
+        df = self.splade.scorer()(pd.DataFrame([
           {'qid': '0', 'query': 'chemical reactions', 'docno' : 'd1', 'text' : 'hello there'},
           {'qid': '0', 'query': 'chemical reactions', 'docno' : 'd2', 'text' : 'chemistry society'},
           {'qid': '1', 'query': 'hello', 'docno' : 'd1', 'text' : 'hello there'},
-        ])
+        ]))
         self.assertAlmostEqual(0., df['score'][0])
         self.assertAlmostEqual(11.133593, df['score'][1], places=4)
         self.assertAlmostEqual(17.566324, df['score'][2], places=3)
