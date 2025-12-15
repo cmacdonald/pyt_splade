@@ -32,12 +32,10 @@ class Splade:
         else:
             self.device = torch.device(device)
         if isinstance(model, str):
-            # from splade.models.transformer_rep import Splade
             from transformers import AutoModelForMaskedLM
             if self.tokenizer is None:
                 from transformers import AutoTokenizer
                 self.tokenizer = AutoTokenizer.from_pretrained(model)
-            # self.model = Splade(model, agg=agg)
             self.model = AutoModelForMaskedLM.from_pretrained(model)
             self.agg = agg
             self.model.output_dim = self.model.config.vocab_size
