@@ -25,7 +25,7 @@ class TestBasic(unittest.TestCase):
     def test_transformer_empty_query(self):
         q = self.splade.query_encoder()
         self.assertEqual([["qid", "query"]], pt.inspect.transformer_inputs(q))
-        self.assertEqual(["qid", "query", "query_tok"], pt.inspect.transformer_outputs(q, ["qid", "query"]))
+        self.assertEqual(["qid", "query", "query_toks"], pt.inspect.transformer_outputs(q, ["qid", "query"]))
         res = q(pd.DataFrame([], columns=['qid', 'query']))
         self.assertEqual(['qid', 'query', 'query_toks'], list(res.columns))
 
