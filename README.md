@@ -76,3 +76,4 @@ We have a demo of PyTerrier_SPLADE at https://huggingface.co/spaces/terrierteam/
 
  - Craig Macdonald
  - Sean MacAvaney
+ - Nicola Tonellotto
