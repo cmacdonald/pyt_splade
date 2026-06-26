@@ -5,7 +5,7 @@ An example of a SPLADE learned sparse indexing and retrieval using PyTerrier tra
 # Installation
 
 ```python
-%pip install -q git+https://github.com/cmacdonald/pyt_splade.git
+pip install pyterrier-splade
 ```
 
 # Indexing
