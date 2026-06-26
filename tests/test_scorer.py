@@ -1,11 +1,11 @@
 import unittest
 import pandas as pd
-import pyt_splade
+import pyterrier_splade
 
 class TestScorer(unittest.TestCase):
 
     def setUp(self):
-        self.splade = pyt_splade.Splade(device='cpu')
+        self.splade = pyterrier_splade.Splade(device='cpu')
 
     def test_scorer(self):
         df = self.splade.scorer()(pd.DataFrame([

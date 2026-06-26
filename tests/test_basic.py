@@ -1,16 +1,16 @@
 import unittest
 import pandas as pd
 from unittest.mock import MagicMock
-import pyt_splade
+import pyterrier_splade
 import pyterrier as pt
 
 class TestBasic(unittest.TestCase):
 
     def setUp(self):
-        self.splade = pyt_splade.Splade(device='cpu')
+        self.splade = pyterrier_splade.Splade(device='cpu')
 
     def test_transformer_indexing(self):
-        df = (self.splade.doc_encoder() >> pyt_splade.toks2doc())(pd.DataFrame([{'docno' : 'd1', 'text' : 'hello there'}]))
+        df = (self.splade.doc_encoder() >> pyterrier_splade.toks2doc())(pd.DataFrame([{'docno' : 'd1', 'text' : 'hello there'}]))
         self.assertTrue('there there' in df.iloc[0].text)
         df = self.splade.doc_encoder()([
             {'docno' : 'd1', 'text' : 'hello there'}, 
