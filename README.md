@@ -45,7 +45,7 @@ SPLADE can also be used as a text scoring function.
 ```python
 
 first_stage = ... # e.g., BM25, dense retrieval, etc.
-splade_scorer = first_stage >> pt.text.get_text(dataset, 'text') >> splade.scorer()
+splade_scorer = first_stage >> dataset.text_loader() >> splade.scorer()
 
 ```
 
@@ -71,6 +71,11 @@ retr_pipeline = splade.query_encoder() >> index.quantized()
 # Demo
 
 We have a demo of PyTerrier_SPLADE at https://huggingface.co/spaces/terrierteam/splade
+
+# Note
+
+Note that this package used to be named `pyt_splade`. The package is still available under that name
+(but this may be removed in the future). The new name is `pyterrier_splade`.
 
 # Credits 
 
