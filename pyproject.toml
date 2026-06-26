@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyterrier-splade"
+description = "PyTerrier wrapper for SPLADE learned sparse indexing and retrieval"
+requires-python = ">=3.7"
+authors = [
+  {name = "Craig Macdonald"},
+  {name = "Sean MacAvaney", email = "sean.macavaney@glasgow.ac.uk"},
+  {name = "Nicola Tonellotto"},
+]
+maintainers = [
+  {name = "Craig Macdonald"},
+  {name = "Sean MacAvaney", email = "sean.macavaney@glasgow.ac.uk"},
+]
+readme = "README.md"
+license = {text = "Creative Commons Attribution-NonCommercial-ShareAlike"}
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dynamic = ["version", "dependencies"]
+
+[tool.setuptools.dynamic]
+version = {attr = "pyterrier_splade.__version__"}
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+# Discovers both `pyterrier_splade` and the backward-compatible `pyt_splade`
+# alias package.
+exclude = ["tests"]
+
+[project.urls]
+Repository = "https://github.com/cmacdonald/pyt_splade"
+"Bug Tracker" = "https://github.com/cmacdonald/pyt_splade/issues"
+
+[tool.ruff]
+line-length = 120
+exclude = ["tests"]
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "TID", "N"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

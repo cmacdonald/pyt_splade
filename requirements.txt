@@ -1,0 +1,4 @@
+torch>=2.6.0
+transformers
+pyterrier>=1.0.0
+pyterrier_alpha

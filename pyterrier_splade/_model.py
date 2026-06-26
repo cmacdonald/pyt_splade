@@ -2,7 +2,7 @@ from typing import Union, List, Literal, Dict
 import torch
 import numpy as np
 import pyterrier as pt
-import pyt_splade
+import pyterrier_splade
 
 class Splade:
     """A SPLADE model, which provides transformers for sparse encoding documents and queries, and scoring documents."""
@@ -58,7 +58,7 @@ class Splade:
             scale: the scale to apply to the term frequencies
         """
         out_field = 'toks' if sparse else 'doc_vec'
-        return pyt_splade.SpladeEncoder(self, text_field, out_field, 'd', sparse, batch_size, verbose, scale)
+        return pyterrier_splade.SpladeEncoder(self, text_field, out_field, 'd', sparse, batch_size, verbose, scale)
 
     indexing = doc_encoder # backward compatible name
 
@@ -72,7 +72,7 @@ class Splade:
             scale: the scale to apply to the term frequencies
         """
         out_field = 'query_toks' if sparse else 'query_vec'
-        res = pyt_splade.SpladeEncoder(self, 'query', out_field, 'q', sparse, batch_size, verbose, scale)
+        res = pyterrier_splade.SpladeEncoder(self, 'query', out_field, 'q', sparse, batch_size, verbose, scale)
         return res
 
     query = query_encoder # backward compatible name
@@ -85,7 +85,7 @@ class Splade:
             batch_size: the batch size to use when scoring
             verbose: if True, show a progress bar
         """
-        return pyt_splade.SpladeScorer(self, text_field, batch_size, verbose)
+        return pyterrier_splade.SpladeScorer(self, text_field, batch_size, verbose)
 
     def encode(
         self,

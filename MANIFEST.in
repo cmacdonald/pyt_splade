@@ -1,1 +1,1 @@
-recursive-include pyt_splade *.rst
+recursive-include pyterrier_splade *.rst

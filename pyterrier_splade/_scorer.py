@@ -10,7 +10,7 @@ class SpladeScorer(pt.Transformer):
         """Initializes the SPLADE scorer.
 
         Args:
-            splade: :class:`pyt_splade.Splade` instance
+            splade: :class:`pyterrier_splade.Splade` instance
             text_field: the text field to score
             batch_size: the batch size to use when scoring
             verbose: if True, show a progress bar

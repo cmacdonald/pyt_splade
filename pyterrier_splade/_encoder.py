@@ -3,7 +3,7 @@ import more_itertools
 import pandas as pd
 import pyterrier as pt
 import pyterrier_alpha as pta
-import pyt_splade
+import pyterrier_splade
 
 
 class SpladeEncoder(pt.Transformer):
@@ -11,7 +11,7 @@ class SpladeEncoder(pt.Transformer):
 
     def __init__(
         self,
-        splade: pyt_splade.Splade,
+        splade: pyterrier_splade.Splade,
         text_field: str,
         out_field: str,
         rep: Literal['q', 'd'],
@@ -23,7 +23,7 @@ class SpladeEncoder(pt.Transformer):
         """Initializes the SPLADE encoder.
 
         Args:
-            splade: :class:`pyt_splade.Splade` instance
+            splade: :class:`pyterrier_splade.Splade` instance
             text_field: the input text field to encode
             out_field: the output field to store the encoded representation
             rep: 'q' for query, 'd' for document

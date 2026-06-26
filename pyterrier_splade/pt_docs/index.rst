@@ -32,8 +32,8 @@ The Terrier indexer is configured to index tokens unchanged.
 
     import pyterrier as pt
 
-    import pyt_splade
-    splade = pyt_splade.Splade()
+    import pyterrier_splade
+    splade = pyterrier_splade.Splade()
     indexer = pt.IterDictIndexer('./msmarco_psg', pretokenised=True)
 
     indxr_pipe = splade.doc_encoder() >> indexer
@@ -69,8 +69,8 @@ For faster retrieval with SPLADE, you can use the fast PISA retrieval backend pr
 
 .. code-block:: python
 
-    import pyt_splade
-    splade = pyt_splade.Splade()
+    import pyterrier_splade
+    splade = pyterrier_splade.Splade()
     dataset = pt.get_dataset('irds:msmarco-passage')
     index = PisaIndex('./msmarco-passage-splade', stemmer='none')
 
